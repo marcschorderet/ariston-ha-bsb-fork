@@ -329,16 +329,6 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
         system_types=[SystemType.BSB],
     ),
     AristonSensorEntityDescription(
-        key="bsb_ch_protection_temp",
-        name=f"{NAME} CH protection temperature",
-        icon="mdi:snowflake-thermometer",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        get_native_value=lambda entity: entity.device.get_zone(1).get(BsbZoneProperties.CH_PROT_TEMP, {}).get("value", None),
-        system_types=[SystemType.BSB],
-    ),
-    AristonSensorEntityDescription(
         key="bsb_dhw_mode",
         name=f"{NAME} DHW mode",
         icon="mdi:water-boiler",
