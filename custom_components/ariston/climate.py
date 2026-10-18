@@ -148,6 +148,13 @@ class AristonThermostat(AristonEntity, ClimateEntity):
     @property
     def hvac_mode(self) -> str:
         """Return the current HVAC mode for the device."""
+        # For BSB devices, always return HEAT (control is via presets)
+        if self._is_bsb_device:
+            zone_mode = self.device.get_zone_mode(self.zone)
+            if zone_mode == BsbZoneMode.OFF:
+                return HVACMode.OFF
+            return HVACMode.HEAT
+
         curr_hvac_mode = HVACMode.OFF
 
         if self.device.is_plant_in_heat_mode:
@@ -165,6 +172,10 @@ class AristonThermostat(AristonEntity, ClimateEntity):
     @property
     def hvac_modes(self) -> list[str]:
         """Return the HVAC modes support by the device."""
+        # For BSB devices, only show HEAT (control is via presets)
+        if self._is_bsb_device:
+            return [HVACMode.HEAT]
+
         supported_modes = []
         if self.device.is_zone_mode_options_contains_manual(self.zone):
             supported_modes.append(HVACMode.HEAT)
