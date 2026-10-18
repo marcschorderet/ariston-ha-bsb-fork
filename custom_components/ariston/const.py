@@ -309,6 +309,16 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
         system_types=[SystemType.BSB],
     ),
     AristonSensorEntityDescription(
+        key="bsb_room_temp",
+        name=f"{NAME} room temperature",
+        icon="mdi:home-thermometer",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        get_native_value=lambda entity: entity.device.get_measured_temp_value(1),
+        system_types=[SystemType.BSB],
+    ),
+    AristonSensorEntityDescription(
         key=EvoLydosDeviceProperties.AV_SHW,
         name=f"{NAME} average showers",
         icon="mdi:shower-head",
