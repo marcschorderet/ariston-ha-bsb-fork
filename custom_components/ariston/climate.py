@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from ariston.const import PlantMode, ZoneMode, BsbZoneMode
+from ariston.const import PlantMode, ZoneMode, BsbZoneMode, SystemType
 from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
@@ -20,6 +20,16 @@ from .coordinator import DeviceDataUpdateCoordinator
 from .entity import AristonEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+# BSB Zone Mode presets mapping (French labels as used by Ariston)
+BSB_ZONE_MODE_PRESETS = {
+    "Confort": BsbZoneMode.MANUAL,
+    "Réduit": BsbZoneMode.MANUAL_NIGHT,
+    "Automatique": BsbZoneMode.TIME_PROGRAM,
+    "Protection": BsbZoneMode.OFF,
+}
+
+BSB_ZONE_MODE_TO_PRESET = {v: k for k, v in BSB_ZONE_MODE_PRESETS.items()}
 
 
 async def async_setup_entry(
@@ -125,11 +135,15 @@ class AristonThermostat(AristonEntity, ClimateEntity):
             features |= ClimateEntityFeature.TURN_OFF
         if hasattr(ClimateEntityFeature, "TURN_ON"):
             features |= ClimateEntityFeature.TURN_ON
-        return (
-            features | ClimateEntityFeature.PRESET_MODE
-            if self.device.plant_mode_supported
-            else features
-        )
+        # Enable presets for plant mode supported devices OR BSB devices
+        if self.device.plant_mode_supported or self._is_bsb_device:
+            features |= ClimateEntityFeature.PRESET_MODE
+        return features
+
+    @property
+    def _is_bsb_device(self) -> bool:
+        """Check if this is a BSB device."""
+        return getattr(self.device, 'system_type', None) == SystemType.BSB
 
     @property
     def hvac_mode(self) -> str:
@@ -188,11 +202,18 @@ class AristonThermostat(AristonEntity, ClimateEntity):
     @property
     def preset_mode(self) -> str:
         """Return the current preset mode, e.g., home, away, temp."""
+        if self._is_bsb_device:
+            # For BSB devices, map zone mode to preset
+            zone_mode = self.device.get_zone_mode(self.zone)
+            return BSB_ZONE_MODE_TO_PRESET.get(zone_mode, "Automatique")
         return self.device.plant_mode_text
 
     @property
     def preset_modes(self) -> list[str]:
         """Return a list of available preset modes."""
+        if self._is_bsb_device:
+            # For BSB devices, return all BSB zone mode presets
+            return list(BSB_ZONE_MODE_PRESETS.keys())
         return self.device.plant_mode_opt_texts
 
     async def async_set_hvac_mode(self, hvac_mode):
@@ -267,6 +288,18 @@ class AristonThermostat(AristonEntity, ClimateEntity):
             preset_mode,
             self.name,
         )
+
+        # Handle BSB devices separately
+        if self._is_bsb_device:
+            if preset_mode in BSB_ZONE_MODE_PRESETS:
+                bsb_zone_mode = BSB_ZONE_MODE_PRESETS[preset_mode]
+                await self.device.async_set_zone_mode(bsb_zone_mode, self.zone)
+                await self.coordinator.async_request_refresh()
+                self.async_write_ha_state()
+                return
+            else:
+                _LOGGER.warning("Unknown preset mode for BSB device: %s", preset_mode)
+                return
 
         # Don't assume index maps to enum value directly
         preset_index = self.device.plant_mode_opt_texts.index(preset_mode)
