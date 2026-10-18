@@ -4,13 +4,13 @@
   "codeowners": ["@fustom"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/fustom/ariston-remotethermo-home-assistant-v3",
+  "documentation": "https://github.com/marcschorderet/ariston-ha-bsb-fork",
   "homekit": {},
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/fustom/ariston-remotethermo-home-assistant-v3/issues",
+  "issue_tracker": "https://github.com/marcschorderet/ariston-ha-bsb-fork/issues",
   "loggers": ["ariston"],
   "requirements": ["ariston==0.19.9"],
   "ssdp": [],
-  "version": "0.19.9",
+  "version": "1.0.9",
   "zeroconf": []
 }

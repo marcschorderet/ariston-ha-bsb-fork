@@ -8,6 +8,7 @@ from typing import Any, Final
 from ariston.const import (
     ARISTON_BUS_ERRORS,
     BsbDeviceProperties,
+    BsbZoneMode,
     BsbZoneProperties,
     ConsumptionProperties,
     ConsumptionType,
@@ -74,6 +75,22 @@ ATTR_ERRORS: Final[str] = "errors"
 
 EXTRA_STATE_ATTRIBUTE: Final[str] = "Attribute"
 EXTRA_STATE_DEVICE_METHOD: Final[str] = "DeviceMethod"
+
+
+# BSB heating mode labels (French)
+BSB_ZONE_MODE_TO_LABEL = {
+    BsbZoneMode.MANUAL: "Confort",
+    BsbZoneMode.MANUAL_NIGHT: "Réduit",
+    BsbZoneMode.TIME_PROGRAM: "Automatique",
+    BsbZoneMode.OFF: "Protection",
+}
+
+
+def _get_bsb_heating_mode_label(zone_mode: BsbZoneMode | None) -> str | None:
+    """Convert BSB zone mode to French label."""
+    if zone_mode is None:
+        return None
+    return BSB_ZONE_MODE_TO_LABEL.get(zone_mode, "Automatique")
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -340,6 +357,13 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
         name=f"{NAME} holidays mode",
         icon="mdi:palm-tree",
         get_native_value=lambda entity: entity.device.get_zone(1).get(BsbZoneProperties.HOLIDAYS, None),
+        system_types=[SystemType.BSB],
+    ),
+    AristonSensorEntityDescription(
+        key="bsb_heating_mode",
+        name=f"{NAME} heating mode",
+        icon="mdi:thermostat",
+        get_native_value=lambda entity: _get_bsb_heating_mode_label(entity.device.get_zone_mode(1)),
         system_types=[SystemType.BSB],
     ),
     AristonSensorEntityDescription(
