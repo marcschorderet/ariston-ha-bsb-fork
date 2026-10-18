@@ -286,7 +286,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key=DeviceProperties.OUTSIDE_TEMP,
-        name=f"{NAME} Outside temp",
+        name=f"{NAME} Température extérieure",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         device_features=[CustomDeviceFeatures.HAS_OUTSIDE_TEMP],
@@ -297,7 +297,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     # BSB-specific sensors
     AristonSensorEntityDescription(
         key=BsbDeviceProperties.DHW_TEMP,
-        name=f"{NAME} DHW temperature",
+        name=f"{NAME} Température eau chaude",
         icon="mdi:water-thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -307,7 +307,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key="bsb_ch_comfort_temp",
-        name=f"{NAME} CH comfort temperature",
+        name=f"{NAME} Consigne confort",
         icon="mdi:thermometer-high",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -317,7 +317,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key="bsb_ch_reduced_temp",
-        name=f"{NAME} CH reduced temperature",
+        name=f"{NAME} Consigne réduit",
         icon="mdi:thermometer-low",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -327,7 +327,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key="bsb_room_temp",
-        name=f"{NAME} room temperature",
+        name=f"{NAME} Température intérieure",
         icon="mdi:home-thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -337,7 +337,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key="bsb_desired_room_temp",
-        name=f"{NAME} desired room temperature",
+        name=f"{NAME} Température consigne",
         icon="mdi:thermometer-check",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -347,21 +347,21 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key="bsb_dhw_mode",
-        name=f"{NAME} DHW mode",
+        name=f"{NAME} Mode eau chaude",
         icon="mdi:water-boiler",
         get_native_value=lambda entity: "ON" if entity.device.water_heater_mode_value == 1 else "OFF" if entity.device.water_heater_mode_value == 0 else None,
         system_types=[SystemType.BSB],
     ),
     AristonSensorEntityDescription(
         key="bsb_holidays",
-        name=f"{NAME} holidays mode",
+        name=f"{NAME} Mode vacances",
         icon="mdi:palm-tree",
         get_native_value=lambda entity: entity.device.get_zone(1).get(BsbZoneProperties.HOLIDAYS, None),
         system_types=[SystemType.BSB],
     ),
     AristonSensorEntityDescription(
         key="bsb_heating_mode",
-        name=f"{NAME} heating mode",
+        name=f"{NAME} Mode chauffage",
         icon="mdi:thermostat",
         get_native_value=lambda entity: _get_bsb_heating_mode_label(entity.device.get_zone_mode(1)),
         system_types=[SystemType.BSB],
@@ -600,7 +600,7 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
     ),
     AristonSensorEntityDescription(
         key=ARISTON_BUS_ERRORS,
-        name=f"{NAME} errors count",
+        name=f"{NAME} Nombre d'erreurs",
         icon="mdi:alert-outline",
         coordinator=BUS_ERRORS_COORDINATOR,
         state_class=SensorStateClass.MEASUREMENT,
@@ -666,14 +666,14 @@ ARISTON_BINARY_SENSOR_TYPES: list[AristonBinarySensorEntityDescription] = [
     ),
     AristonBinarySensorEntityDescription(
         key=BsbDeviceProperties.HP_ON,
-        name=f"{NAME} is heat pump on",
+        name=f"{NAME} Pompe à chaleur active",
         icon="mdi:heat-pump-outline",
         get_is_on=lambda entity: entity.device.data.get(BsbDeviceProperties.HP_ON, False),
         system_types=[SystemType.BSB],
     ),
     AristonBinarySensorEntityDescription(
         key="bsb_heating_on",
-        name=f"{NAME} is heating on",
+        name=f"{NAME} Chauffage actif",
         icon="mdi:radiator",
         get_is_on=lambda entity: entity.device.get_zone(1).get(BsbZoneProperties.HEATING_ON, False),
         system_types=[SystemType.BSB],
@@ -1006,7 +1006,7 @@ ARISTON_NUMBER_TYPES: list[AristonNumberEntityDescription] = [
     # BSB-specific number controls
     AristonNumberEntityDescription(
         key="bsb_ch_comfort_temp_control",
-        name=f"{NAME} CH comfort temperature setpoint",
+        name=f"{NAME} Régler consigne confort",
         icon="mdi:thermometer-high",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -1019,7 +1019,7 @@ ARISTON_NUMBER_TYPES: list[AristonNumberEntityDescription] = [
     ),
     AristonNumberEntityDescription(
         key="bsb_ch_reduced_temp_control",
-        name=f"{NAME} CH reduced temperature setpoint",
+        name=f"{NAME} Régler consigne réduit",
         icon="mdi:thermometer-low",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -1032,7 +1032,7 @@ ARISTON_NUMBER_TYPES: list[AristonNumberEntityDescription] = [
     ),
     AristonNumberEntityDescription(
         key="bsb_dhw_comfort_temp_control",
-        name=f"{NAME} DHW comfort temperature setpoint",
+        name=f"{NAME} Régler eau chaude confort",
         icon="mdi:water-thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -1045,7 +1045,7 @@ ARISTON_NUMBER_TYPES: list[AristonNumberEntityDescription] = [
     ),
     AristonNumberEntityDescription(
         key="bsb_dhw_reduced_temp_control",
-        name=f"{NAME} DHW reduced temperature setpoint",
+        name=f"{NAME} Régler eau chaude réduit",
         icon="mdi:water-thermometer-outline",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -1137,7 +1137,7 @@ ARISTON_SELECT_TYPES: list[AristonSelectEntityDescription] = [
     # BSB-specific select controls
     AristonSelectEntityDescription(
         key="bsb_dhw_mode_control",
-        name=f"{NAME} DHW mode",
+        name=f"{NAME} Régler mode eau chaude",
         icon="mdi:water-boiler",
         get_current_option=lambda entity: entity.device.water_heater_mode_operation_texts[entity.device.water_heater_mode_value] if entity.device.water_heater_mode_value is not None else None,
         get_options=lambda entity: entity.device.water_heater_mode_operation_texts,

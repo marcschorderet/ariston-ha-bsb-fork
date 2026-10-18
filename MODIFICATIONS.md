@@ -19,6 +19,30 @@ Les appareils BSB n'avaient pas de preset modes car `plant_mode_supported` retou
 
 Ajout d'un capteur binaire `is heat pump on` pour les appareils BSB, exposant l'état `hpOn` de l'API.
 
+### 3. Noms d'entités en français pour BSB (`const.py`)
+
+Les noms des entités BSB ont été francisés pour une meilleure lisibilité :
+
+| Nom original (anglais) | Nouveau nom (français) |
+|------------------------|------------------------|
+| `is heat pump on` | **Pompe à chaleur active** |
+| `is heating on` | **Chauffage actif** |
+| `Outside temp` | **Température extérieure** |
+| `room temperature` | **Température intérieure** |
+| `desired room temperature` | **Température consigne** |
+| `CH comfort temperature` | **Consigne confort** |
+| `CH reduced temperature` | **Consigne réduit** |
+| `DHW temperature` | **Température eau chaude** |
+| `DHW mode` (sensor) | **Mode eau chaude** |
+| `DHW mode` (select) | **Régler mode eau chaude** |
+| `heating mode` | **Mode chauffage** |
+| `holidays mode` | **Mode vacances** |
+| `errors count` | **Nombre d'erreurs** |
+| `CH comfort temperature setpoint` | **Régler consigne confort** |
+| `CH reduced temperature setpoint` | **Régler consigne réduit** |
+| `DHW comfort temperature setpoint` | **Régler eau chaude confort** |
+| `DHW reduced temperature setpoint` | **Régler eau chaude réduit** |
+
 ## Installation
 
 1. Copier le dossier `custom_components/ariston/` dans votre répertoire Home Assistant `config/custom_components/`
