@@ -596,7 +596,7 @@ ARISTON_BINARY_SENSOR_TYPES: list[AristonBinarySensorEntityDescription] = [
         name=f"{NAME} is flame on",
         icon="mdi:fire",
         get_is_on=lambda entity: entity.device.is_flame_on_value,
-        system_types=[SystemType.GALEVO, SystemType.BSB],
+        system_types=[SystemType.GALEVO],
     ),
     AristonBinarySensorEntityDescription(
         key=DeviceProperties.IS_HEATING_PUMP_ON,
