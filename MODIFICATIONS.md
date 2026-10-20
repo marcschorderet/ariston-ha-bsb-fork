@@ -4,6 +4,50 @@ Fork de [fustom/ariston-remotethermo-home-assistant-v3](https://github.com/fusto
 
 ## Modifications apportées
 
+### 4. Timeout et gestion des erreurs API (`coordinator.py`) — 2026-10-20
+
+**Problème résolu :** L'intégration cessait de recevoir des mises à jour de données, nécessitant un redémarrage de Home Assistant pour rétablir le fonctionnement.
+
+**Cause racine :** La bibliothèque `ariston` (v0.19.9) n'a aucun timeout HTTP configuré pour les requêtes async. Quand l'API cloud Ariston devient lente ou ne répond pas, les requêtes HTTP restent bloquées indéfiniment, ce qui bloque le coordinateur Home Assistant.
+
+**Corrections apportées :**
+
+1. **Timeout de 60 secondes** sur tous les appels API via `asyncio.wait_for()`
+2. **Exception `UpdateFailed`** levée en cas de timeout ou d'erreur, permettant à Home Assistant de gérer automatiquement les retry
+3. **Logging détaillé** pour diagnostiquer les problèmes :
+   - Temps de réponse de chaque requête
+   - Timeouts avec message explicite
+   - Erreurs de connexion HTTP
+   - Compteur d'erreurs consécutives
+   - Message de récupération après erreurs
+
+**Configuration logging recommandée :**
+
+```yaml
+# configuration.yaml
+logger:
+  default: warning
+  logs:
+    custom_components.ariston: debug  # Tous les détails
+    # ou
+    custom_components.ariston: info   # Seulement erreurs et récupérations
+```
+
+**Exemples de logs :**
+
+```
+# Succès (niveau DEBUG)
+[COORDINATOR] Data update successful (took 2.34s)
+
+# Timeout (niveau ERROR)
+[COORDINATOR] API request TIMED OUT after 60.00s (timeout=60s). This indicates the Ariston cloud API is unresponsive. Consecutive errors: 1
+
+# Récupération (niveau INFO)
+[COORDINATOR] Data update recovered after 3 consecutive errors (took 1.89s)
+```
+
+---
+
 ### 1. Preset modes pour appareils BSB (`climate.py`)
 
 Les appareils BSB n'avaient pas de preset modes car `plant_mode_supported` retourne `False`. Maintenant, les appareils BSB exposent les modes de zone comme presets :
