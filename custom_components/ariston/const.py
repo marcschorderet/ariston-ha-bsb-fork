@@ -86,6 +86,84 @@ BSB_ZONE_MODE_TO_LABEL = {
 }
 
 
+def _get_bsb_holidays_status(holidays_data: list | None) -> str:
+    """Determine if holidays mode is currently active.
+    
+    Returns 'Actif' if current date falls within any holiday period,
+    'Inactif' otherwise.
+    """
+    if not holidays_data or not isinstance(holidays_data, list):
+        return "Inactif"
+    
+    from datetime import datetime
+    now = datetime.now()
+    
+    for period in holidays_data:
+        if not isinstance(period, dict):
+            continue
+        from_str = period.get('from')
+        to_str = period.get('to')
+        if not from_str or not to_str:
+            continue
+        try:
+            # Parse ISO format dates
+            from_date = datetime.fromisoformat(from_str.replace('Z', '+00:00'))
+            to_date = datetime.fromisoformat(to_str.replace('Z', '+00:00'))
+            # Make naive for comparison
+            from_date = from_date.replace(tzinfo=None)
+            to_date = to_date.replace(tzinfo=None)
+            # Check if now is within this period
+            if from_date <= now <= to_date:
+                return "Actif"
+        except (ValueError, TypeError):
+            continue
+    
+    return "Inactif"
+
+
+def _get_bsb_next_holiday(holidays_data: list | None) -> str | None:
+    """Get the next upcoming holiday period.
+    
+    Returns a formatted string like '04.05 - 11.05' or None if no future holidays.
+    """
+    if not holidays_data or not isinstance(holidays_data, list):
+        return None
+    
+    from datetime import datetime
+    now = datetime.now()
+    next_holiday = None
+    
+    for period in holidays_data:
+        if not isinstance(period, dict):
+            continue
+        from_str = period.get('from')
+        to_str = period.get('to')
+        if not from_str or not to_str:
+            continue
+        try:
+            from_date = datetime.fromisoformat(from_str.replace('Z', '+00:00'))
+            to_date = datetime.fromisoformat(to_str.replace('Z', '+00:00'))
+            from_date = from_date.replace(tzinfo=None)
+            to_date = to_date.replace(tzinfo=None)
+            
+            # Skip if dates are the same (empty/placeholder period)
+            if from_date == to_date:
+                continue
+            
+            # Check if this is a future period
+            if from_date > now:
+                if next_holiday is None or from_date < next_holiday[0]:
+                    next_holiday = (from_date, to_date)
+        except (ValueError, TypeError):
+            continue
+    
+    if next_holiday:
+        from_date, to_date = next_holiday
+        return f"{from_date.strftime('%d.%m')} - {to_date.strftime('%d.%m')}"
+    
+    return None
+
+
 def _get_bsb_heating_mode_label(zone_mode: BsbZoneMode | None) -> str | None:
     """Convert BSB zone mode to French label."""
     if zone_mode is None:
@@ -356,7 +434,13 @@ ARISTON_SENSOR_TYPES: list[AristonSensorEntityDescription] = [
         key="bsb_holidays",
         name=f"{NAME} Mode vacances",
         icon="mdi:palm-tree",
-        get_native_value=lambda entity: entity.device.get_zone(1).get(BsbZoneProperties.HOLIDAYS, None),
+        get_native_value=lambda entity: _get_bsb_holidays_status(entity.device.get_zone(1).get(BsbZoneProperties.HOLIDAYS, None)),
+        extra_states=[
+            {
+                EXTRA_STATE_ATTRIBUTE: "prochaines_vacances",
+                EXTRA_STATE_DEVICE_METHOD: lambda entity: _get_bsb_next_holiday(entity.device.get_zone(1).get(BsbZoneProperties.HOLIDAYS, None)),
+            },
+        ],
         system_types=[SystemType.BSB],
     ),
     AristonSensorEntityDescription(
